@@ -8,6 +8,9 @@ on:
     workflows: ["Auto Version"]
     types: [completed]
 
+permissions:
+  contents: write
+
 jobs:
   build-linux:
     if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
