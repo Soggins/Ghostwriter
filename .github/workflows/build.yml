@@ -4,15 +4,31 @@ on:
   push:
     tags:
       - 'v*'
-  pull_request:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Auto Version"]
+    types: [completed]
 
 jobs:
   build-linux:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Determine tag to build
+        shell: bash
+        run: |
+          set -e
+          git fetch --tags --force
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG=$(git describe --tags --abbrev=0)
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          git checkout "$TAG"
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -35,9 +51,25 @@ jobs:
           retention-days: 30
 
   build-windows:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Determine tag to build
+        shell: bash
+        run: |
+          set -e
+          git fetch --tags --force
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG=$(git describe --tags --abbrev=0)
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          git checkout "$TAG"
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -60,9 +92,25 @@ jobs:
           retention-days: 30
 
   build-macos:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Determine tag to build
+        shell: bash
+        run: |
+          set -e
+          git fetch --tags --force
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG=$(git describe --tags --abbrev=0)
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          git checkout "$TAG"
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -87,9 +135,23 @@ jobs:
   create-release:
     needs: [build-linux, build-windows, build-macos]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Determine tag for release
+        shell: bash
+        run: |
+          set -e
+          git fetch --tags --force
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG=$(git describe --tags --abbrev=0)
+          fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
       
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -97,6 +159,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ env.TAG || github.ref_name }}
           files: |
             Ghostwriter-Linux/Ghostwriter
             Ghostwriter-Windows/Ghostwriter.exe
