@@ -158,14 +158,22 @@ jobs:
       
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+
+      - name: Rename artifacts per platform
+        shell: bash
+        run: |
+          set -e
+          mv Ghostwriter-Linux/Ghostwriter Ghostwriter-linux
+          mv Ghostwriter-Windows/Ghostwriter.exe Ghostwriter-windows.exe
+          mv Ghostwriter-macOS/Ghostwriter Ghostwriter-macos
       
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.TAG || github.ref_name }}
           files: |
-            Ghostwriter-Linux/Ghostwriter
-            Ghostwriter-Windows/Ghostwriter.exe
-            Ghostwriter-macOS/Ghostwriter
+            Ghostwriter-linux
+            Ghostwriter-windows.exe
+            Ghostwriter-macos
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
