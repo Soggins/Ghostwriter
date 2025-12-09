@@ -27,7 +27,9 @@ jobs:
           LATEST="${{ steps.latest_tag.outputs.tag }}"
           LATEST=${LATEST#v}
           
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST"
+          MAJOR=$(echo $LATEST | cut -d. -f1)
+          MINOR=$(echo $LATEST | cut -d. -f2)
+          PATCH=$(echo $LATEST | cut -d. -f3)
           PATCH=$((PATCH + 1))
           NEXT="v${MAJOR}.${MINOR}.${PATCH}"
           
