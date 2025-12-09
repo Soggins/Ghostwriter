@@ -28,7 +28,7 @@ jobs:
         run: pyinstaller --noconfirm --onefile --windowed --name "Ghostwriter" main.py
       
       - name: Upload Linux artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Ghostwriter-Linux
           path: dist/Ghostwriter
@@ -53,7 +53,7 @@ jobs:
         run: pyinstaller --noconfirm --onefile --windowed --name "Ghostwriter" main.py
       
       - name: Upload Windows artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Ghostwriter-Windows
           path: dist/Ghostwriter.exe
@@ -78,7 +78,7 @@ jobs:
         run: pyinstaller --noconfirm --onefile --windowed --name "Ghostwriter" main.py
       
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Ghostwriter-macOS
           path: dist/Ghostwriter
