@@ -39,8 +39,9 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git tag ${{ steps.next_version.outputs.version }}
-          git push origin ${{ steps.next_version.outputs.version }}
+          TAG="${{ steps.next_version.outputs.version }}"
+          git tag "$TAG"
+          git push origin "$TAG"
       
       - name: Output
         run: echo "Created tag: ${{ steps.next_version.outputs.version }}"
